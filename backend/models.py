@@ -7,10 +7,9 @@ from rest_framework.authtoken.models import Token
 
 class Photo(models.Model):
     owner = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='photos')
-    # author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     description = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
-    photo = models.ImageField(upload_to="photos", null=False, blank=False)
+    photo = models.ImageField(upload_to="media", null=False, blank=False)
 
 
 @receiver(post_save, sender=User)
