@@ -7,7 +7,7 @@ router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'photo', views.PhotoViewSet)
 router.register(r'allphotos', views.AllPhotosViewSet)
-router.register(r'singlephoto', views.SinglePhotoViewSet, basename='singlephoto')
+router.register(r'myprofilephotos', views.MyProfilePhotosViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
