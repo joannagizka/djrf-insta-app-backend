@@ -1,7 +1,15 @@
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from backend.models import Photo
+from backend.models import Photo, Comment
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        created = serializers.DateTimeField()
+        owner = serializers.ReadOnlyField(source='owner.username', read_only=True)
+        fields = ['photo', 'content', 'owner', 'created']
 
 
 class PhotoSerializer(serializers.HyperlinkedModelSerializer):
@@ -9,6 +17,15 @@ class PhotoSerializer(serializers.HyperlinkedModelSerializer):
         model = Photo
         created = serializers.DateTimeField()
         fields = ['id', 'description', 'created', 'photo']
+
+
+class SinglePhotoSerializer(serializers.HyperlinkedModelSerializer):
+    comments = CommentSerializer(many=True, required=False)
+
+    class Meta:
+        model = Photo
+        created = serializers.DateTimeField()
+        fields = ['id', 'description', 'created', 'photo', 'comments']
 
 
 class UserSerializer(serializers.ModelSerializer):

@@ -16,3 +16,10 @@ class Photo(models.Model):
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
+
+
+class Comment(models.Model):
+    owner = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    photo = models.ForeignKey(Photo, on_delete=models.CASCADE, related_name='comments')
+    content = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
