@@ -8,8 +8,8 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         created = serializers.DateTimeField()
-        owner = serializers.ReadOnlyField(source='owner.username', read_only=True)
         fields = ['photo', 'content', 'owner', 'created']
+        read_only_fields = ['owner']
 
 
 class PhotoSerializer(serializers.HyperlinkedModelSerializer):

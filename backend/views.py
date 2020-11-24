@@ -72,13 +72,12 @@ class CommentViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     serializer_class = CommentSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
     def get_queryset(self):
         comment = Comment.objects.all()
         return comment
-
-    def post(self, request, *args, **kwargs):
-        Comment.objects.create(owner=request.auth.user)
-
 
 class PhotoDetailsViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
@@ -88,3 +87,5 @@ class PhotoDetailsViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = SinglePhotoSerializer(instance)
         return Response(serializer.data)
+
+    
