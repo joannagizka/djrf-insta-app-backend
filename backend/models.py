@@ -23,3 +23,13 @@ class Comment(models.Model):
     photo = models.ForeignKey(Photo, on_delete=models.CASCADE, related_name='comments')
     content = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
+
+
+class Like(models.Model):
+    photo = models.ForeignKey(Photo, on_delete=models.CASCADE)
+    owner = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['photo', 'owner'], name='unique_like')
+        ]

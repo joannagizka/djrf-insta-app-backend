@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from backend.models import Photo, Comment
+from backend.models import Photo, Comment, Like
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -41,3 +41,10 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
+
+
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = ['photo', 'owner']
+        read_only_fields = ['owner']

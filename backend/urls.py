@@ -10,6 +10,7 @@ router.register(r'allphotos', views.AllPhotosViewSet, basename='allphotos')
 router.register(r'myprofilephotos', views.MyProfilePhotosViewSet, basename='myprofilephotos')
 router.register(r'comments', views.CommentViewSet, basename='comments')
 router.register(r'photodetails', views.PhotoDetailsViewSet, basename='photodetails')
+router.register(r'photodetails/(?P<photo_id>.+)/(?P<function>.+)', views.LikeViewSet, basename='like')
 
 urlpatterns = [
     path('', include(router.urls)),

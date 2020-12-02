@@ -1,11 +1,12 @@
 import json
 from django.http import HttpResponse
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.admin import User
 from rest_framework.response import Response
-from backend.models import Photo, Comment
-from backend.serializers import UserSerializer, PhotoSerializer, CommentSerializer, SinglePhotoSerializer
+from backend.models import Photo, Comment, Like
+from backend.serializers import UserSerializer, PhotoSerializer, CommentSerializer, SinglePhotoSerializer, \
+    LikeSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -79,6 +80,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         comment = Comment.objects.all()
         return comment
 
+
 class PhotoDetailsViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     queryset = Photo.objects.all()
@@ -88,4 +90,21 @@ class PhotoDetailsViewSet(viewsets.ModelViewSet):
         serializer = SinglePhotoSerializer(instance)
         return Response(serializer.data)
 
-    
+
+class LikeViewSet(viewsets.ModelViewSet):
+    authentication_classes = (TokenAuthentication,)
+    serializer_class = LikeSerializer
+
+    def perform_create(self, serializer):
+        photo_id = self.kwargs['photo_id']
+        if self.kwargs['function'] == 'like':
+            serializer.save(owner=self.request.user, photo_id=photo_id)
+        else:
+            Like.objects.filter(photo_id=photo_id, owner=self.request.user).delete()
+
+    def get_queryset(self):
+        photo_id = self.kwargs['photo_id']
+        likes = Like.objects.filter(photo_id=photo_id)
+        return likes
+
+
