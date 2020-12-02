@@ -21,11 +21,23 @@ class PhotoSerializer(serializers.HyperlinkedModelSerializer):
 
 class SinglePhotoSerializer(serializers.HyperlinkedModelSerializer):
     comments = CommentSerializer(many=True, required=False)
+    isLikedByMe = serializers.SerializerMethodField(read_only=True)
+    likesAmount = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Photo
         created = serializers.DateTimeField()
-        fields = ['id', 'description', 'created', 'photo', 'comments']
+
+        fields = ['id', 'description', 'created', 'photo', 'comments', 'isLikedByMe', 'likesAmount']
+
+    def get_isLikedByMe(self, photo):
+        return Like.objects.filter(photo=photo, owner=self.context['request'].user).exists()
+
+    def get_likesAmount(self, photo):
+        return Like.objects.filter(photo=photo).count()
+
+
+
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -47,4 +59,4 @@ class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = ['photo', 'owner']
-        read_only_fields = ['owner']
+        read_only_fields = ['owner', 'photo']

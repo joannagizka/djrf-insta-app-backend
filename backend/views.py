@@ -1,4 +1,6 @@
 import json
+
+from django.core.serializers import get_serializer
 from django.http import HttpResponse
 from rest_framework import viewsets, status
 from rest_framework.authentication import TokenAuthentication
@@ -87,7 +89,7 @@ class PhotoDetailsViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = SinglePhotoSerializer(instance)
+        serializer = SinglePhotoSerializer(instance, context={'request': request})
         return Response(serializer.data)
 
 
@@ -105,6 +107,5 @@ class LikeViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         photo_id = self.kwargs['photo_id']
         likes = Like.objects.filter(photo_id=photo_id)
+
         return likes
-
-
