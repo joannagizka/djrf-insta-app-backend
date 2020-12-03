@@ -11,6 +11,7 @@ router.register(r'myprofilephotos', views.MyProfilePhotosViewSet, basename='mypr
 router.register(r'comments', views.CommentViewSet, basename='comments')
 router.register(r'photodetails', views.PhotoDetailsViewSet, basename='photodetails')
 router.register(r'photodetails/(?P<photo_id>.+)/(?P<function>.+)', views.LikeViewSet, basename='like')
+router.register(r'users/(?P<profile_id>.+)/(?P<function>.+)', views.ObservationViewSet, basename='observation')
 
 urlpatterns = [
     path('', include(router.urls)),

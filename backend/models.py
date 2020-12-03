@@ -33,3 +33,13 @@ class Like(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['photo', 'owner'], name='unique_like')
         ]
+
+
+class Observation(models.Model):
+    follower = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='follower')
+    following = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='following')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['follower', 'following'], name='unique_observation')
+        ]

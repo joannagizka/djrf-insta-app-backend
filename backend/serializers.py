@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from backend.models import Photo, Comment, Like
+from backend.models import Photo, Comment, Like, Observation
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -37,16 +37,15 @@ class SinglePhotoSerializer(serializers.HyperlinkedModelSerializer):
         return Like.objects.filter(photo=photo).count()
 
 
-
-
-
 class UserSerializer(serializers.ModelSerializer):
     photos = PhotoSerializer(many=True, required=False)
+    followersAmount = serializers.SerializerMethodField(read_only=True)
+    #followedByMe = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
-        read_only = 'photos'
-        fields = ['id', 'username', 'email', 'password', 'photos']
+        read_only_fields = ['photos' ]#, 'followedByMe']
+        fields = ['id', 'username', 'email', 'password', 'photos', 'followersAmount' ]#, 'followedByMe']
         extra_kwargs = {'password': {'required': True, 'write_only': True}}
         owner = serializers.ReadOnlyField(source='owner.username', read_only=True)
 
@@ -54,9 +53,23 @@ class UserSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         return user
 
+    # def get_followedByMe(self, user):
+    #     return Observation.objects.filter(follower=self.context['request'].user, following=user).exists()
+
+    def get_followersAmount(self, user):
+        return Observation.objects.filter(following=user).count()
+
 
 class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = ['photo', 'owner']
         read_only_fields = ['owner', 'photo']
+
+
+class ObservationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Observation
+        fields = ['follower', 'following']
+        read_only_fields = ['follower', 'following']
+

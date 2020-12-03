@@ -6,9 +6,9 @@ from rest_framework import viewsets, status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.admin import User
 from rest_framework.response import Response
-from backend.models import Photo, Comment, Like
+from backend.models import Photo, Comment, Like, Observation
 from backend.serializers import UserSerializer, PhotoSerializer, CommentSerializer, SinglePhotoSerializer, \
-    LikeSerializer
+    LikeSerializer, ObservationSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -109,3 +109,21 @@ class LikeViewSet(viewsets.ModelViewSet):
         likes = Like.objects.filter(photo_id=photo_id)
 
         return likes
+
+
+class ObservationViewSet(viewsets.ModelViewSet):
+    authentication_classes = (TokenAuthentication,)
+    serializer_class = ObservationSerializer
+
+    def perform_create(self, serializer):
+        profile_id = self.kwargs['profile_id']
+        if self.kwargs['function'] == 'follow':
+            serializer.save(follower=self.request.user, following_id=profile_id)
+        else:
+            Observation.objects.filter(following_id=profile_id, follower=self.request.user).delete()
+
+    def get_queryset(self):
+        profile_id = self.kwargs['profile_id']
+        observations = Observation.objects.filter(following_id=profile_id)
+
+        return observations
