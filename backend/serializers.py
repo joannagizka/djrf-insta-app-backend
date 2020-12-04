@@ -40,12 +40,12 @@ class SinglePhotoSerializer(serializers.HyperlinkedModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     photos = PhotoSerializer(many=True, required=False)
     followersAmount = serializers.SerializerMethodField(read_only=True)
-    #followedByMe = serializers.SerializerMethodField(read_only=True)
+    followedByMe = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
-        read_only_fields = ['photos' ]#, 'followedByMe']
-        fields = ['id', 'username', 'email', 'password', 'photos', 'followersAmount' ]#, 'followedByMe']
+        read_only_fields = ['photos', 'followedByMe']
+        fields = ['id', 'username', 'email', 'password', 'photos', 'followersAmount', 'followedByMe']
         extra_kwargs = {'password': {'required': True, 'write_only': True}}
         owner = serializers.ReadOnlyField(source='owner.username', read_only=True)
 
@@ -53,8 +53,8 @@ class UserSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         return user
 
-    # def get_followedByMe(self, user):
-    #     return Observation.objects.filter(follower=self.context['request'].user, following=user).exists()
+    def get_followedByMe(self, user):
+        return Observation.objects.filter(follower=self.context['request'].user, following=user).exists()
 
     def get_followersAmount(self, user):
         return Observation.objects.filter(following=user).count()
@@ -72,4 +72,3 @@ class ObservationSerializer(serializers.ModelSerializer):
         model = Observation
         fields = ['follower', 'following']
         read_only_fields = ['follower', 'following']
-

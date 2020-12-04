@@ -2,7 +2,7 @@ import json
 
 from django.core.serializers import get_serializer
 from django.http import HttpResponse
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, generics
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.admin import User
 from rest_framework.response import Response
@@ -10,10 +10,15 @@ from backend.models import Photo, Comment, Like, Observation
 from backend.serializers import UserSerializer, PhotoSerializer, CommentSerializer, SinglePhotoSerializer, \
     LikeSerializer, ObservationSerializer
 
+from rest_framework import filters
+
 
 class UserViewSet(viewsets.ModelViewSet):
+    authentication_classes = (TokenAuthentication,)
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['username']
 
 
 class PhotoViewSet(viewsets.ModelViewSet):
