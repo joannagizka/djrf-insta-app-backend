@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from backend.models import Photo, Comment, Like, Observation
 from backend.serializers import UserSerializer, PhotoSerializer, CommentSerializer, SinglePhotoSerializer, \
     LikeSerializer, ObservationSerializer
+from django.db.models import Q
 
 from rest_framework import filters
 
@@ -41,12 +42,14 @@ class PhotoViewSet(viewsets.ModelViewSet):
 
 
 class AllPhotosViewSet(viewsets.ModelViewSet):
+    authentication_classes = (TokenAuthentication,)
     queryset = Photo.objects.all()
     serializer_class = PhotoSerializer
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = PhotoSerializer(queryset, many=True)
+        following = Observation.objects.values('following').filter(follower=request.auth.user)
+        queryset = Photo.objects.filter(Q(owner__in=following) | Q(owner=request.auth.user)).order_by('-created')
+        serializer = PhotoSerializer(queryset, many=True, context={'request': request})
         return Response(serializer.data)
 
 

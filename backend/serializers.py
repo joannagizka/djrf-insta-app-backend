@@ -13,10 +13,24 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class PhotoSerializer(serializers.HyperlinkedModelSerializer):
+    isLikedByMe = serializers.SerializerMethodField(read_only=True)
+    likesAmount = serializers.SerializerMethodField(read_only=True)
+    commentsAmount = serializers.SerializerMethodField(read_only=True)
+    owner = serializers.ReadOnlyField(source='owner.username')
+
     class Meta:
         model = Photo
         created = serializers.DateTimeField()
-        fields = ['id', 'description', 'created', 'photo']
+        fields = ['id', 'description', 'created', 'photo', 'isLikedByMe', 'likesAmount', 'commentsAmount', 'owner']
+
+    def get_isLikedByMe(self, photo):
+        return Like.objects.filter(photo=photo, owner=self.context['request'].user).exists()
+
+    def get_likesAmount(self, photo):
+        return Like.objects.filter(photo=photo).count()
+
+    def get_commentsAmount(self, photo):
+        return Comment.objects.filter(photo=photo).count()
 
 
 class SinglePhotoSerializer(serializers.HyperlinkedModelSerializer):
@@ -40,11 +54,11 @@ class SinglePhotoSerializer(serializers.HyperlinkedModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     photos = PhotoSerializer(many=True, required=False)
     followersAmount = serializers.SerializerMethodField(read_only=True)
-    followedByMe = serializers.SerializerMethodField(read_only=True)
+    followedByMe = serializers.SerializerMethodField(read_only=False)
 
     class Meta:
         model = User
-        read_only_fields = ['photos', 'followedByMe']
+        read_only_fields = ['photos']
         fields = ['id', 'username', 'email', 'password', 'photos', 'followersAmount', 'followedByMe']
         extra_kwargs = {'password': {'required': True, 'write_only': True}}
         owner = serializers.ReadOnlyField(source='owner.username', read_only=True)
@@ -72,3 +86,4 @@ class ObservationSerializer(serializers.ModelSerializer):
         model = Observation
         fields = ['follower', 'following']
         read_only_fields = ['follower', 'following']
+
