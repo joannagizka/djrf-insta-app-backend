@@ -75,7 +75,7 @@ class MyProfilePhotosViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        serializer = PhotoSerializer(queryset, many=True)
+        serializer = PhotoSerializer(queryset, many=True, context={'request': request})
         return Response(serializer.data)
 
 

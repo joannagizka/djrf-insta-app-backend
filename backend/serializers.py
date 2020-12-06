@@ -5,11 +5,18 @@ from backend.models import Photo, Comment, Like, Observation
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    username = serializers.ReadOnlyField(source='owner.username')
+    isMe = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Comment
         created = serializers.DateTimeField()
-        fields = ['photo', 'content', 'owner', 'created']
+        fields = ['photo', 'content', 'owner', 'created', 'username', 'isMe']
         read_only_fields = ['owner']
+
+    def get_isMe(self, photo):
+        return photo.owner == self.context['request'].user
+
 
 
 class PhotoSerializer(serializers.HyperlinkedModelSerializer):
@@ -37,18 +44,25 @@ class SinglePhotoSerializer(serializers.HyperlinkedModelSerializer):
     comments = CommentSerializer(many=True, required=False)
     isLikedByMe = serializers.SerializerMethodField(read_only=True)
     likesAmount = serializers.SerializerMethodField(read_only=True)
+    username = serializers.ReadOnlyField(source='owner.username')
+    ownerId = serializers.ReadOnlyField(source='owner.id')
+    isMe = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Photo
         created = serializers.DateTimeField()
 
-        fields = ['id', 'description', 'created', 'photo', 'comments', 'isLikedByMe', 'likesAmount']
+        fields = ['id', 'description', 'created', 'photo', 'comments', 'isLikedByMe', 'likesAmount', 'username', 'isMe', 'ownerId']
+
 
     def get_isLikedByMe(self, photo):
         return Like.objects.filter(photo=photo, owner=self.context['request'].user).exists()
 
     def get_likesAmount(self, photo):
         return Like.objects.filter(photo=photo).count()
+
+    def get_isMe(self, photo):
+        return photo.owner == self.context['request'].user
 
 
 class UserSerializer(serializers.ModelSerializer):
