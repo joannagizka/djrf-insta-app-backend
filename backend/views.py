@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from rest_framework import viewsets, status, generics
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.admin import User
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from backend.models import Photo, Comment, Like, Observation
 from backend.serializers import UserSerializer, PhotoSerializer, CommentSerializer, SinglePhotoSerializer, \
@@ -13,6 +14,10 @@ from django.db.models import Q
 
 from rest_framework import filters
 
+class PhotoSetPagination(PageNumberPagination):
+    page_size = 30
+    page_size_query_param = 'page_size'
+    max_page_size = 50
 
 class UserViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
@@ -45,12 +50,14 @@ class AllPhotosViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     queryset = Photo.objects.all()
     serializer_class = PhotoSerializer
+    pagination_class = PhotoSetPagination
 
     def list(self, request, *args, **kwargs):
         following = Observation.objects.values('following').filter(follower=request.auth.user)
         queryset = Photo.objects.filter(Q(owner__in=following) | Q(owner=request.auth.user)).order_by('-created')
-        serializer = PhotoSerializer(queryset, many=True, context={'request': request})
-        return Response(serializer.data)
+        paged = self.paginate_queryset(queryset)
+        serializer = PhotoSerializer(paged, many=True, context={'request': request})
+        return self.get_paginated_response(serializer.data)
 
 
 class CurrentUserViewSet(viewsets.ModelViewSet):
@@ -76,7 +83,7 @@ class MyProfilePhotosViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = PhotoSerializer(queryset, many=True, context={'request': request})
-        return Response(serializer.data)
+        return Response({'photos': serializer.data, 'username': request.user.username, 'followersAmount': Observation.objects.filter(following=request.user).count()})
 
 
 class CommentViewSet(viewsets.ModelViewSet):
