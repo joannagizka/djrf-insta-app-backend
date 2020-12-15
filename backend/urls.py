@@ -5,6 +5,7 @@ from backend import views
 
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet, basename='users')
+router.register(r'registration', views.RegistrationViewSet, basename='registration')
 router.register(r'photo', views.PhotoViewSet, basename='photo')
 router.register(r'allphotos', views.AllPhotosViewSet, basename='allphotos')
 router.register(r'myprofilephotos', views.MyProfilePhotosViewSet, basename='myprofilephotos')

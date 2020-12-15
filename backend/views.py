@@ -8,8 +8,8 @@ from rest_framework.authtoken.admin import User
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from backend.models import Photo, Comment, Like, Observation
-from backend.serializers import UserSerializer, PhotoSerializer, CommentSerializer, SinglePhotoSerializer, \
-    LikeSerializer, ObservationSerializer
+from backend.serializers import RegisteredUserSerializer, PhotoSerializer, CommentSerializer, SinglePhotoSerializer, \
+    LikeSerializer, ObservationSerializer, UserSerializer
 from django.db.models import Q
 
 from rest_framework import filters
@@ -22,10 +22,13 @@ class PhotoSetPagination(PageNumberPagination):
 class UserViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     queryset = User.objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
+    serializer_class = RegisteredUserSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['username']
 
+class RegistrationViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all().order_by('-date_joined')
+    serializer_class = UserSerializer
 
 class PhotoViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
@@ -62,7 +65,7 @@ class AllPhotosViewSet(viewsets.ModelViewSet):
 
 class CurrentUserViewSet(viewsets.ModelViewSet):
     model = User
-    serializer_class = UserSerializer
+    serializer_class = RegisteredUserSerializer
 
     def dispatch(self, request, *args, **kwargs):
         if kwargs.get('pk') == 'current' and request.user:
