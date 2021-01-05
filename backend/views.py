@@ -14,21 +14,28 @@ from django.db.models import Q
 
 from rest_framework import filters
 
+
 class PhotoSetPagination(PageNumberPagination):
     page_size = 30
     page_size_query_param = 'page_size'
     max_page_size = 50
 
+
 class UserViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
-    queryset = User.objects.all().order_by('-date_joined')
+
+    def get_queryset(self):
+        return User.objects.all().order_by('-date_joined').exclude(username=self.request.user)
+
     serializer_class = RegisteredUserSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['username']
 
+
 class RegistrationViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
+
 
 class PhotoViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
@@ -86,7 +93,8 @@ class MyProfilePhotosViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = PhotoSerializer(queryset, many=True, context={'request': request})
-        return Response({'photos': serializer.data, 'username': request.user.username, 'followersAmount': Observation.objects.filter(following=request.user).count()})
+        return Response({'photos': serializer.data, 'username': request.user.username,
+                         'followersAmount': Observation.objects.filter(following=request.user).count()})
 
 
 class CommentViewSet(viewsets.ModelViewSet):
