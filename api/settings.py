@@ -1,4 +1,5 @@
 import os
+import django_heroku
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -96,7 +97,12 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_REGEX_WHITELIST = [
     'http://localhost:3000',
+    '*'
 ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+# Activate Django-Heroku.
+django_heroku.settings(locals())
+
