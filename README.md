@@ -4,7 +4,7 @@ A web application with basic functionalities of a social networking
  site, such as: adding photos containing descriptions, the ability to 
 follow and unfollow other users, search users by usernname, comment and like photos.
 
-###Getting started
+### Getting started
 These instructions will get you a copy of the project 
 up and running on your local machine for development and testing purposes.
 
@@ -24,9 +24,9 @@ or
 
 #### Or just try online demo
 
-* [InstaApp](https://inst-app-frontend.herokuapp.com/) - Link to Demo deployed on Heroku.
+* [InstaApp](http://52.29.228.97:3001) - Link to deployed demo.
 
-###Built with
+### Built with
 * Python
 * Django Rest Framework
 
